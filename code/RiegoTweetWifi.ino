@@ -1,9 +1,10 @@
 #include <EEPROM.h> // library to store information in firmware
 #include <TrueRandom.h> // library for better randomization http://code.google.com/p/tinkerit/wiki/TrueRandom
+// #include <JeeLib.h> // Low power functions library
+
 #include <Adafruit_CC3000.h>
 #include <SPI.h>
 #include <sha1.h>
-// #include <JeeLib.h> // Low power functions library
 
 // DEFINICION DE PINES
 
@@ -30,7 +31,7 @@ Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ
 // Arduino RAM is limited. If code fails, try shorter messages
 #define URGENT_WATER "URGENTE! Que alguien me riegue!"
 #define WATER "Una ronda de agua?"
-#define NO_WATER "Todo va bien."
+#define WATER_OK "Todo va bien."
 #define THANK_YOU "Gracias por el trago!"
 #define OVER_WATERED "Glup glup..."
 #define UNDER_WATERED "Dame mas agua!"
@@ -51,18 +52,18 @@ Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ
 
 
 // WiFi access point credentials
-#define WLAN_SSID       "SSID"        // cannot be longer than 32 characters!
-#define WLAN_PASS       "PASSWORD"
+#define WLAN_SSID       "Love_Paradise"        // cannot be longer than 32 characters!
+#define WLAN_PASS       "..antzokia..26112005"
 #define WLAN_SECURITY   WLAN_SEC_WPA // This can be WLAN_SEC_UNSEC, WLAN_SEC_WEP, WLAN_SEC_WPA or WLAN_SEC_WPA2
 
 const char PROGMEM
   // Twitter application credentials -- see notes above -- DO NOT SHARE.
-  consumer_key[]  = "YOUR CONSUMER KEY",
-  access_token[]  = "YOUR ACCESS TOKEN",
-  signingKey[]    = "YOUR CONSUMER SECRET"      // Consumer secret
-    "&"             "YOUR ACCESS TOKEN SECRET", // Access token secret
+  consumer_key[]  = "1LMG9W2BTxxxEzBgIwNFw",
+  access_token[]  = "1969302930-wOa0PpG26BqIXvynW7wSWFL3vQxgySNiczT0GkR",
+  signingKey[]    = "uDSW40uq3saf0KfLzB8eU9H5GThBogY7fTPXLMOM"      // Consumer secret
+    "&"             "8cYiXLbROOpPObfsFLn7Xtzrl76mlQwJo3CSHJlD2WrGO", // Access token secret
   endpoint[]      = "/1.1/statuses/update.json",
-  agent[]         = "Arduino-Tweet-iRRIGATION v1.0";
+  agent[]         = "Arduino-Tweet-Test v1.0";
 const char
   host[]          = "api.twitter.com";
 const unsigned long
@@ -120,12 +121,10 @@ void setup()  {
   digitalWrite(STATUSLED, HIGH); // turn on the moisture LED
   digitalWrite(COMMLED, HIGH); // turn on the moisture LED
   digitalWrite(MOISTLED, HIGH); // turn on the moisture LED
-  digitalWrite(MOTORAGUA, HIGH); // turn on the moisture LED
   delay(500);
   digitalWrite(STATUSLED, LOW); // turn on the moisture LED
   digitalWrite(COMMLED, LOW); // turn on the moisture LED
   digitalWrite(MOISTLED, LOW); // turn on the moisture LED
-  digitalWrite(MOTORAGUA, LOW); // turn on the moisture LED
 }
 
 

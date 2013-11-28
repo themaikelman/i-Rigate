@@ -31,14 +31,12 @@ void moistureCheck() {
     }
   
     ///return values
-    if ((nivelMedio < SECO)  &&  (lastMoistAvg < SECO)  && state < URGENT_SENT && (millis() > (lastTwitterTime + TWITTER_INTERVAL)) ) {
+    if ((nivelMedio < SECO)  &&  (lastMoistAvg < SECO)  && state < URGENT_SENT) {
       // Serial.println("URGENT tweet");
-      sendTweet(URGENT_WATER); // announce to Twitter
       state = URGENT_SENT; // remember this message
       
-    } else if  ((nivelMedio < waterTarget)  &&  (lastMoistAvg >= waterTarget)   && state < WATER_SENT &&  (millis() > (lastTwitterTime + TWITTER_INTERVAL)) ) {
+    } else if  ((nivelMedio < waterTarget) && (lastMoistAvg < waterTarget) && state < WATER_SENT) {
       // Serial.println("WATER tweet");
-      sendTweet(WATER); // announce to Twitter
       state = WATER_SENT; // remember this message
       
     } else if (nivelMedio > waterTarget + HYSTERESIS) {
@@ -55,15 +53,23 @@ void moistureCheck() {
     */
     
     if(state == URGENT_SENT) {
+        if( (millis() > (lastTwitterTime + TWITTER_INTERVAL)) ) {
+          sendTweet(URGENT_WATER); // announce to Twitter
+        }
         riegaMe(RIEGO_URGENTE);
+        
     } else if(state == WATER_SENT) {
+        if( (millis() > (lastTwitterTime + TWITTER_INTERVAL)) ) {
+          sendTweet(WATER); // announce to Twitter
+        }
         riegaMe(RIEGO_NORMAL);
+        
     } else if(state == MOISTURE_OK) {
-      if (millis() > (lastTwitterTime + 60000) ) {
-         sendTweet(NO_WATER); // announce to Twitter
+      if (millis() > (lastTwitterTime + 1800000) ) {
+         sendTweet(WATER_OK); // announce to Twitter every 30 minutes
       }
-      //Sleepy::loseSomeTime(120000); // dos minutos de bypass
-      delay(120000);
+      // Sleepy::loseSomeTime(120000); // dos minutos de bypass
+      // delay(120000);
     }
   }
 }
@@ -110,8 +116,10 @@ void wateringCheck() {
 void riegaMe(int time) {
   // Serial.print("riega ");Serial.println(time * 1000);
   digitalWrite(MOISTLED, HIGH);
+  //analogWrite(riegoPIN, 255); // Activa el riego
   digitalWrite(MOTORAGUA, HIGH);
   delay(time * 1000); //Sleepy::loseSomeTime(time * 1000);
+  //analogWrite(riegoPIN, 0); // Activa el riego
   digitalWrite(MOTORAGUA, LOW);
   digitalWrite(MOISTLED, LOW);
   delay(time * 1000); //Sleepy::loseSomeTime(time * 1000);

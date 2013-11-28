@@ -132,8 +132,9 @@ boolean sendTweet(char *twit) { // 140 chars max! No checks made here.
     // Serial.println(message);
     // Serial.println( strlen(message) );
    
-    /*
+
     // Serial.print(F("OK\r\nAwaiting response..."));
+    /*
     Serial.println(F("-------------------------------------"));
     unsigned long lastRead = millis();
     while (client.connected() && (millis() - lastRead < responseTimeout)) {
