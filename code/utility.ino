@@ -1,37 +1,35 @@
 // setting the moisture LED
-void moistLight (int wetness) {
+void humedad2LED (int wetness) {
   if (wetness < SECO) {
-    blinkLED(MOISTLED, 6, 50); // blink fast when soil is very dry
-    analogWrite(MOISTLED, 8);
+    blinkLED(WaterLED, 6, 50); // blink fast when soil is very dry
+    analogWrite(WaterLED, 8);
   } else if (wetness < waterTarget) {
-    blinkLED(MOISTLED, 6, 100); // blink slowly when watering is needed
-    analogWrite(MOISTLED, 24);
+    blinkLED(WaterLED, 6, 100); // blink slowly when watering is needed
+    analogWrite(WaterLED, 24);
   } else {
-    analogWrite(MOISTLED,wetness/4); // otherwise display a steady LED with brightness mapped to moisture
+    analogWrite(WaterLED,wetness/4); // otherwise display a steady LED with brightness mapped to moisture
   }
 }
 
-// On error, print PROGMEM string to serial monitor and stop
+// Gestion del error de comunicaciones
 void hang(const __FlashStringHelper *str) {
-  // Serial.print("ERROR!!! ");
-  Serial.println(str);
-  blinkLED(COMMLED,100,10);
+  // Serial.print(str);
+  blinkLED(TwittLED,100,10);
   cc3000.reboot();
 }
 
-// this function blinks the an LED light as many times as requested
+// Funcion de parpadeo
 void blinkLED(byte targetPin, int numBlinks, int blinkRate) {
   for (int i=0; i<numBlinks; i++) {
-    digitalWrite(targetPin, HIGH);   // sets the LED on
-    delay(blinkRate);                     // waits for a blinkRate milliseconds
-    digitalWrite(targetPin, LOW);    // sets the LED off
+    digitalWrite(targetPin, HIGH);
+    delay(blinkRate); // milliseconds
+    digitalWrite(targetPin, LOW);
     delay(blinkRate);
   }
 }
 
-// URL-encoding output function for Print class.
-// Input from RAM or PROGMEM (flash).  Double-encoding is a weird special
-// case for Oauth (encoded strings get encoded a second time).
+// URL-encoding
+// Se codifica doblemente en el caso del Oauth
 void urlEncode(
   Print      &p,       // EthernetClient, Sha1, etc.
   const char *src,     // String to be encoded
@@ -61,7 +59,7 @@ unsigned long getTime(void) {
   uint8_t       buf[48];
   unsigned long ip, startTime, t = 0L;
 
-  Serial.print(F("Locating time server..."));
+  // Serial.print(F("Locating time server..."));
 
   // Hostname to IP lookup; use NTP pool (rotates through servers)
   if(cc3000.getHostByName("pool.ntp.org", &ip)) {
@@ -77,8 +75,6 @@ unsigned long getTime(void) {
 
     if(client.connected()) {
       // Serial.print(F("connected!\r\nIssuing request..."));
-
-      // Assemble and issue request packet
       memset(buf, 0, sizeof(buf));
       memcpy_P( buf    , timeReqA, sizeof(timeReqA));
       memcpy_P(&buf[12], timeReqB, sizeof(timeReqB));
@@ -99,10 +95,12 @@ unsigned long getTime(void) {
         // Serial.println(F("success!"));
       }
       client.close();
-    } else {
+    // } else {
       // Serial.print(F("not connected"));
     }
   }
+
   if(!t) Serial.println(F("error"));
+
   return t;
 }

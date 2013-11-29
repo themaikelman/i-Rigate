@@ -1,6 +1,6 @@
 void beginCC3000() {
   uint32_t ip = 0L, t;
-  // Serial.begin(115200);
+  
   // Serial.print(F("Hello! Initializing CC3000..."));
   if(!cc3000.begin()) hang(F("failed. Check your wiring?"));
   
@@ -24,9 +24,10 @@ void beginCC3000() {
 }
 
 // Returns true on success, false on error
-boolean sendTweet(char *twit) { // 140 chars max! No checks made here.
+boolean sendTweet(char *twit) { 
+  // 140 chars max! No checks made here.
   // Serial.println("---- SEND TWEET! ----");
-  digitalWrite(COMMLED,HIGH); // light the Communications LED
+  digitalWrite(TwittLED,HIGH); // light the Communications LED
 
   uint8_t                  *in, out, i;
   char                      nonce[9],       // 8 random digits + NUL
@@ -44,10 +45,10 @@ boolean sendTweet(char *twit) { // 140 chars max! No checks made here.
   sprintf(searchTime, "%ld", currentTime);
   
   // assemble a string for Twitter, appending a unique ID to prevent Twitter's repeat detection
-  char *str1 = " [medida actual:";
+  char *str1 = " [actual:";
   char *str2;
   str2= (char*) calloc (5,sizeof(char)); // allocate memory to string 2
-  itoa(lastMoistAvg,str2,10); // turn serial number into a string
+  itoa(ultimaMedia,str2,10); // turn serial number into a string
   char *str3 = " - objetivo:";
   char *str4;
   str4= (char*) calloc (5,sizeof(char)); // allocate memory to string 4
@@ -103,8 +104,6 @@ boolean sendTweet(char *twit) { // 140 chars max! No checks made here.
   } while((!client.connected()) && ((millis() - t) < connectTimeout));
 
   if(client.connected()) { // Success!
-    // Serial.print(F("OK\r\nIssuing HTTP request..."));
-
     // Unlike the hash prep, parameters in the HTTP request don't require sorting.
     client.fastrprint(F("POST "));
     client.fastrprint(F2(endpoint));
@@ -131,26 +130,10 @@ boolean sendTweet(char *twit) { // 140 chars max! No checks made here.
     
     // Serial.println(message);
     // Serial.println( strlen(message) );
-   
-
-    // Serial.print(F("OK\r\nAwaiting response..."));
-    /*
-    Serial.println(F("-------------------------------------"));
-    unsigned long lastRead = millis();
-    while (client.connected() && (millis() - lastRead < responseTimeout)) {
-      while (client.available()) {
-        char c = client.read();
-        Serial.print(c);
-        lastRead = millis();
-      }
-      Serial.println(F(""));
-    }
-    Serial.println(F("-------------------------------------"));
-    */
     
-    int c = 0;
     // Dirty trick: instead of parsing results, just look for opening
     // curly brace indicating the start of a successful JSON response.
+    int c = 0;
     while(((c = timedRead()) > 0) && (c != '{'));
     /*
     if(c == '{')   Serial.println(message);
@@ -161,12 +144,13 @@ boolean sendTweet(char *twit) { // 140 chars max! No checks made here.
     
     client.close();
     cc3000.disconnect();
-    lastTwitterTime = millis();
-    digitalWrite(COMMLED,LOW); // light the Communications LED
+    tUltimoTwitter = millis();
+    digitalWrite(TwittLED,LOW); // light the Communications LED
     return true;
-  } else { // Couldn't contact server
-    blinkLED(COMMLED,10,20);
-    Serial.println(F("failed"));
+  } else {
+    // Serial.println(F("Couldn't contact server"));
+    blinkLED(TwittLED,10,20);
+    analogWrite(TwittLED,0);
     return false;
   }
 }
@@ -189,8 +173,7 @@ int encodedLength(char *src) {
   int     len = 0;
 
   while((c = *src++)) {
-    len += (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) ||
-            ((c >= '0') && (c <= '9')) || strchr_P(PSTR("-_.~"), c)) ? 1 : 3;
+    len += (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || ((c >= '0') && (c <= '9')) || strchr_P(PSTR("-_.~"), c)) ? 1 : 3;
   }
 
   return len;
@@ -217,4 +200,20 @@ void dhcpChecker() {
     }
   }
 } 
+
+void printResponse() {
+  // Serial.print(F("OK\r\nAwaiting response..."));
+  /*
+  Serial.println(F("-------------------------------------"));
+  unsigned long lastRead = millis();
+  while (client.connected() && (millis() - lastRead < responseTimeout)) {
+    while (client.available()) {
+      char c = client.read();
+      Serial.print(c);
+      lastRead = millis();
+    }
+  Serial.println(F(""));
+  }
+  Serial.println(F("-------------------------------------"));
+}
 */
