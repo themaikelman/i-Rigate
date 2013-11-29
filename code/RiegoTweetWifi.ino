@@ -69,7 +69,7 @@ unsigned long tUltimoTwitter = 0; // Ultimo t en el que se envio un twitter (mil
 int moistValues[MOIST_SAMPLES];
 int ultimaMedia=0; // storage for moisture value
 int lastWaterVal=0; // storage for watering detection value
-int waterTarget=0;
+int waterTarget = 0;
 static int state = 0; // tracks which messages have been sent
 
 boolean ipState = false;
