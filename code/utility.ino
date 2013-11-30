@@ -1,13 +1,25 @@
+void suspenderMin(int t) {
+  for (int i = 0; i < t; ++i) {
+    Sleepy::loseSomeTime(60L * 1000L);
+  }
+}
+
+void suspenderSec(int t) {
+  for (int i = 0; i < t; ++i) {
+    Sleepy::loseSomeTime(1000L);
+  }
+}
+
 // setting the moisture LED
-void humedad2LED (int wetness) {
-  if (wetness < SECO) {
-    blinkLED(WaterLED, 6, 50); // blink fast when soil is very dry
+void humedad2LED (int humedad) {
+  if (humedad < SECO) {
+    blinkLED(WaterLED, 10, 50); // blink fast when soil is very dry
     analogWrite(WaterLED, 8);
-  } else if (wetness < waterTarget) {
-    blinkLED(WaterLED, 6, 100); // blink slowly when watering is needed
+  } else if (humedad < objetivoRegulado) {
+    blinkLED(WaterLED, 5, 100); // blink slowly when watering is needed
     analogWrite(WaterLED, 24);
   } else {
-    analogWrite(WaterLED,wetness/4); // otherwise display a steady LED with brightness mapped to moisture
+    analogWrite(WaterLED,humedad/4); // otherwise display a steady LED with brightness mapped to moisture
   }
 }
 

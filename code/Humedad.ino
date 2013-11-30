@@ -1,16 +1,20 @@
-//function for checking soil moisture against threshold
+
 void medirHumedad() {
   int nivelMedio = tomarMediaHumedad();
+  objetivoRegulado = analogRead(PotenciometroPIN);
   
   // Cambiar de estado
   if ( nivelMedio < SECO ) {
-    estado = REVISAR_DEPOSITO;
-  } else if  ( nivelMedio > (waterTarget + HYSTERESIS) ) {
-    estado = HUMEDAD_ALTA;
-  } else if  ( (nivelMedio < (waterTarget + HYSTERESIS)) && (nivelMedio > (waterTarget - HYSTERESIS)) ) {
-    estado = HUMEDAD_OK;
-  } else if ( nivelMedio < waterTarget ) {
-    estado = RIEGAME;
+    estado = 1;
+    blinkLED(MotorLED, 10, 50); // Para mostrar que no se riega
+  } else if  ( nivelMedio > (objetivoRegulado + HYSTERESIS) ) {
+    estado = 3;
+    blinkLED(MotorLED, 10, 50); // Para mostrar que no se riega
+  } else if  ( (nivelMedio < (objetivoRegulado + HYSTERESIS)) && (nivelMedio > (objetivoRegulado - HYSTERESIS)) ) {
+    estado = 4;
+    blinkLED(MotorLED, 10, 50); // Para mostrar que no se riega
+  } else if ( nivelMedio < objetivoRegulado ) {
+    estado = 2;
     regar();
   }
   
@@ -24,35 +28,42 @@ void medirHumedad() {
 }
 
 void regar() {
+  dosis++;
   activarRiego(T_RIEGO);
-  Sleepy::loseSomeTime(T_CALAR_AGUA);
+  suspenderSec(T_CALAR_AGUA);
   int nivelMedio = tomarMediaHumedad();
+  objetivoRegulado = analogRead(PotenciometroPIN);
   
   // Revisar el estado
   if ( nivelMedio < SECO ) {
-    estado = REVISAR_DEPOSITO;
-  } else if  (nivelMedio > waterTarget + HYSTERESIS) {
-    estado = GRACIAS;
-  } else if ( nivelMedio < waterTarget - HYSTERESIS ) {
-    estado = RIEGAME;
+    estado = 1;
+    blinkLED(MotorLED, 10, 50); // Para mostrar que no se riega
+  } else if  (nivelMedio > objetivoRegulado + HYSTERESIS) {
+    estado = 5;
+    blinkLED(MotorLED, 10, 50); // Para mostrar que no se riega
+  } else if ( nivelMedio < objetivoRegulado - HYSTERESIS ) {
+    estado = 2;
     regar();
   }
+  
 }
 
 int tomarMediaHumedad() {
-  static int counter = 1;
-  // Tomar un total de MOIST_SAMPLES de la humedad
+  int counter = 1;
+  // Tomar un total de MUESTRAS_HUMEDAD de la humedad
   while(counter < MUESTRAS_HUMEDAD) {
-    if(millis() > (tUltimaMedida + T_MUESTRAS)) {
+    if(millis() > (tUltimaMedida + (T_MUESTRAS * 1000L))) {
+      blinkLED(WaterLED, 6, 50);humedad2LED(ultimaMedia);
+      
       // Mover las medidas vaciando la ultima
       for(int i = MUESTRAS_HUMEDAD - 1; i > 0; i--) {
-        moistValues[i] = moistValues[i-1]; 
+        muestras[i] = muestras[i-1]; 
       }
       
       // Tomar una nueva medida
       analogWrite(ClavoROJO, 255);
       delay(500); // estabilizar la carga
-      moistValues[0] = analogRead(ClavoNEGRO);//take a measurement and put it in the first place
+      muestras[0] = analogRead(ClavoNEGRO);//take a measurement and put it in the first place
       analogWrite(ClavoROJO, 0);
       
       counter++;
@@ -61,11 +72,11 @@ int tomarMediaHumedad() {
   }
 
   // Calcular la media
-  int moistTotal = 0;
+  int valorTotal = 0;
   for(int i = 0; i < MUESTRAS_HUMEDAD; i++) {
-    moistTotal += moistValues[i];
+    valorTotal += muestras[i];
   }
-  int media = moistTotal/MUESTRAS_HUMEDAD;
+  int media = valorTotal/MUESTRAS_HUMEDAD;
   
   // Mostrar en el LED la medida tomada
   humedad2LED(media);
@@ -77,7 +88,7 @@ void activarRiego(int time) {
   // Serial.print("riega ");Serial.println(time * 1000);
   digitalWrite(MotorLED, HIGH);
   digitalWrite(MotorAGUA, HIGH);
-  Sleepy::loseSomeTime(time * 1000);
+  suspenderSec(time);
   digitalWrite(MotorAGUA, LOW);
   digitalWrite(MotorLED, LOW);
 }

@@ -17,7 +17,7 @@ void beginCC3000() {
   // Serial.println(F("OK"));
 
   // Get initial time from time server (make a few tries if needed)
-  for(uint8_t i=0; (i<5) && !(currentTime = getTime()); delay(5000L), i++);
+  for(uint8_t i=0; (i<5) && !(currentTime = getTime()); suspenderSec(5), i++);
 
   // Initialize crypto library
   Sha1.initHmac_P((uint8_t *)signingKey, sizeof(signingKey) - 1);
@@ -45,24 +45,30 @@ boolean sendTweet(char *twit) {
   sprintf(searchTime, "%ld", currentTime);
   
   // assemble a string for Twitter, appending a unique ID to prevent Twitter's repeat detection
-  char *str1 = " [actual:";
+  char *str1 = " [media:";
   char *str2;
   str2= (char*) calloc (5,sizeof(char)); // allocate memory to string 2
   itoa(ultimaMedia,str2,10); // turn serial number into a string
-  char *str3 = " - objetivo:";
+  char *str3 = " - obj:";
   char *str4;
   str4= (char*) calloc (5,sizeof(char)); // allocate memory to string 4
-  itoa(waterTarget,str4,10); // turn message counter into a string
-  char *str5 = "] ";
+  itoa(objetivoRegulado,str4,10); // turn message counter into a string
+  char *str5 = " - dosis:";
+  char *str6;
+  str6= (char*) calloc (5,sizeof(char)); // allocate memory to string 4
+  itoa(dosis,str6,10); // turn message counter into a string
+  char *str7 = "] ";
   char *message;
   // allocate memory for the message
-  message = (char*) calloc(strlen(twit) + strlen(str1) + strlen(str2) + strlen(str3) + strlen(str4) + strlen(str5) + strlen(searchTime) + 1, sizeof(char));
+  message = (char*) calloc(strlen(twit) + strlen(str1) + strlen(str2) + strlen(str3) + strlen(str4) + strlen(str5) + strlen(str6) + strlen(str7) + strlen(searchTime) + 1, sizeof(char));
   strcat(message, twit); // assemble (concatenate) the strings into a message
   strcat(message, str1);
   strcat(message, str2);   
   strcat(message, str3);
   strcat(message, str4);
   strcat(message, str5);
+  strcat(message, str6);
+  strcat(message, str7);
   strcat(message, searchTime);
   
   Sha1.print(F("POST&http%3A%2F%2F"));
@@ -149,7 +155,7 @@ boolean sendTweet(char *twit) {
     return true;
   } else {
     // Serial.println(F("Couldn't contact server"));
-    blinkLED(TwittLED,10,20);
+    blinkLED(TwittLED,10,50);
     analogWrite(TwittLED,0);
     return false;
   }
