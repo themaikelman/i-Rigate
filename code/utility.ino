@@ -27,7 +27,10 @@ void humedad2LED (int humedad) {
 void hang(const __FlashStringHelper *str) {
   // Serial.print(str);
   blinkLED(TwittLED,100,10);
-  cc3000.reboot();
+  client.close();
+  cc3000.disconnect();
+  digitalWrite(TwittLED,LOW); // light the Communications LED
+  // cc3000.reboot();
 }
 
 // Funcion de parpadeo
@@ -112,7 +115,7 @@ unsigned long getTime(void) {
     }
   }
 
-  if(!t) Serial.println(F("error"));
+  // if(!t) Serial.println(F("error"));
 
   return t;
 }

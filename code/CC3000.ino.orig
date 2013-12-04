@@ -163,7 +163,11 @@ boolean sendTweet(char *twit) {
   } else {
     // Serial.println(F("Couldn't contact server"));
     blinkLED(TwittLED,10,50);
+<<<<<<< HEAD
+    analogWrite(TwittLED,0);
+=======
     digitalWrite(TwittLED,LOW);
+>>>>>>> beta 3 R2
     return false;
   }
 }

@@ -15,6 +15,15 @@
 
 #define MUESTRAS_HUMEDAD 10 // Numero de muestras a tomar para calcular la media
 
+<<<<<<< HEAD
+#define T_DESCANSO 60 // Minutos de descanso entre ciclos
+#define T_MUESTRAS 20 // Segundos entre muestras
+#define T_RIEGO 10 // Segundos de activacion de riego. Teoricamente 100 mL/min -> 1.6ml
+#define T_CALAR_AGUA 60 // Segundos para permitir que cale el agua
+#define T_TWITTER 2 // Minutos minimos entre envios a twitter
+#define HYSTERESIS 20 // Valor de estabilizacion http://en.wikipedia.org/wiki/Hysteresis
+#define SECO 100 // Minimo valor de humedad
+=======
 #define T_DESCANSO 120 // Minutos de descanso entre ciclos (4horas)
 #define T_MUESTRAS 10 // Segundos entre muestras
 #define T_RIEGO 10 // Segundos de activacion de riego. Teoricamente 100 mL/min -> 1.6ml
@@ -22,6 +31,7 @@
 // #define T_TWITTER 2 // Minutos minimos entre envios a twitter
 #define HYSTERESIS 30 // Valor de estabilizacion http://en.wikipedia.org/wiki/Hysteresis
 #define SECO 50 // Minimo valor de humedad
+>>>>>>> beta 3 R2
 
 #define REVISAR_DEPOSITO "Puede que el deposito no tenga agua" // Estado 1
 #define RIEGAME "Dame de beber" // Estado 2
@@ -108,6 +118,16 @@ void loop()       // main loop of the program
   objetivoRegulado = analogRead(PotenciometroPIN);
   medirHumedad();
   
+<<<<<<< HEAD
+  if( (millis() > (tUltimoTwitter + (T_TWITTER * 60L * 1000L)) ) ) {
+    if(estado == 1) sendTweet(REVISAR_DEPOSITO);
+    else if(estado == 2) sendTweet(RIEGAME);
+    else if(estado == 3) sendTweet(HUMEDAD_ALTA);
+    else if(estado == 4) sendTweet(HUMEDAD_OK);
+    else if(estado == 5) sendTweet(GRACIAS);
+    else sendTweet("Algo ha ido mal...");
+  }
+=======
   // if( millis() >= (tUltimoTwitter + (T_TWITTER * 60L * 1000L)) ) {
   if(estado == 1) sendTweet(REVISAR_DEPOSITO);
   else if(estado == 2) sendTweet(RIEGAME);
@@ -116,5 +136,6 @@ void loop()       // main loop of the program
   else if(estado == 5) sendTweet(GRACIAS);
   else sendTweet("Algo ha ido mal...");
   // }
+>>>>>>> beta 3 R2
   suspenderMin(T_DESCANSO);
 }
